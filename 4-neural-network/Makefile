@@ -8,16 +8,16 @@ SRC = main.c
 .PHONY: all debug run clean help nn_lib
 
 # ==============================================================================
-# 本地開發 (Local Build) 與 系統安裝 (System Install) 條件切換機制
+# Local Build 與 System Install 條件切換機制
 # ==============================================================================
 ifeq ($(USE_SYSTEM_LIB), 1)
-    # 情境 2: Finalized Testing (使用系統全域路徑庫)
+    # Finalized Testing (使用系統全域路徑庫)
     # 不需要呼叫子目錄 Makefile，直接連結全域路徑的 -lnn
     CFLAGS_BASE = -Wall -Wextra
 	LDFLAGS = -lnn -lm
     BUILD_DEP = 
 else
-    # 情境 1: Development Testing (預設：本地沙盒開發環境)
+    # Development Testing (預設)
     # 需要先建置子目錄，並帶上本地 Include 路徑與 rpath 機制
     CFLAGS_BASE = -Wall -Wextra -I./nn/include
 	LDFLAGS = -L./nn/lib -lnn -lm -Wl,-rpath,$(PWD)/nn/lib
