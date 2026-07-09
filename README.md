@@ -1,93 +1,91 @@
-# makefile-jane
+# Lab 2: Build Systems and Tools - C/C++ Compilation Automation
 
 
+## 📂 專案架構與目錄說明
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
+```text
+makefile-jane/
+├── README.md               # 本說明文件
+├── 1-hello-world/          # Exercise 1: 基礎語法與 Dependency 連鎖
+│   ├── Makefile
+│   └── hello.c
+├── 2-simple-math/          # Exercise 2: Wildcard 與 Pattern Rules 的運用
+│   ├── Makefile
+│   ├── area.c
+│   ├── log.c
+│   └── sqrt.c
+├── 3-linked-list/          # Exercise 3: Target-specific 與隱式規則變數
+│   ├── Makefile
+│   ├── list.c
+│   ├── list.h
+│   └── main.c
+└── 4-neural-network/       # Exercise 4: 複合型專案、動態/靜態庫與環境
+    ├── Makefile            # 頂層主應用程式 Makefile
+    ├── main.c              # 使用神經網路庫的主程式 (CNN 模擬)
+    └── nn/                 # 神經網路核心函式庫
+        ├── Makefile        # 函式庫獨立 Makefile
+        ├── include/nn/     # 標頭檔 (.h)
+        └── src/nn/         # 原始碼 (.c)
 ```
-cd existing_repo
-git remote add origin https://gitlab.aislab.ee.ncku.edu.tw/aislab-internal/course/summer-training/summer-training-2026/lab2-submission/makefile-jane.git
-git branch -M main
-git push -uf origin main
+
+## Exercise 1: Hello World
+功能：指令前加上 @ 隱藏冗餘輸出，以及 rm -f 的防錯清除機制。
+
+執行指令：
+```
+cd 1-hello-world
+make          # 編譯產生 hello.o 與可執行檔 hello.out
+make run      # 自動編譯並執行程式
+make clean    # 清除產生的目的檔與執行檔
+make help     # 印出支援的指令與說明
+```
+## Exercise 2: Simple Math
+
+所有數學運算（如 sqrt, log10）均正確於連結階段尾端加上 -lm 以供 Linker 正確解析。
+
+執行指令：
+```
+cd 2-simple-math
+make all      # 一鍵編譯目錄下所有的數學工具程式 (.out)
+make area     # 編譯並執行計算圓面積程式
+make sqrt     # 編譯並執行計算開平方根程式
+make log      # 編譯並執行計算常用對數程式
+make clean    # 清除所有產生的執行檔
 ```
 
-## Integrate with your tools
+## Exercise 3: Linked List
+使用 Target-specific Variable Values 對不同的目標給予不同的編譯最佳化選項。
 
-* [Set up project integrations](https://gitlab.aislab.ee.ncku.edu.tw/aislab-internal/course/summer-training/summer-training-2026/lab2-submission/makefile-jane/-/settings/integrations)
+執行指令：
+```
+cd 3-linked-list
+make all      # 動態追加 -O2 最佳化編譯並建置發布版程式
+make debug    # 動態追加 -g -O0 包含除錯資訊並關閉最佳化，供 GDB 使用
+make run      # 編譯並自動執行單向鏈結串列測試
+make clean    # 清除所有物件檔案 (.o) 與可執行檔
+```
+## Exercise 4: Neural Network Library 
 
-## Collaborate with your team
+- 核心設計機制（雙模切換）：
+    - Development Testing：預設模式。
+    頂層 Makefile 會自動呼叫子目錄 nn/Makefile 於本地編譯出 libnn.so，並搭配 -Wl,-rpath 將執行期查找路徑燒進二進位檔。
+    - 全域部署測試（Finalized Testing）：將動態庫部署至標準系統路徑下（如 /usr/local/lib/ 與 /usr/local/include/nn/），使其成為作業系統環境的一部分。
+    
+執行與驗證步驟：
+```
+cd 4-neural-network
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+# === 測試 1:  (預設) ===
+make clean
+make run        # 自動於本地建置、連結並在本地載入動態庫執行
 
-## Test and Deploy
+# === 測試 2: 模擬發布至系統全域環境 ===
+cd nn
+sudo make install   # 將函式庫與標頭檔複製到系統全域路徑
+sudo ldconfig       # 更新系統動態連結器快取
 
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+cd ..
+make clean          # 清除本地編譯產物
+make USE_SYSTEM_LIB=1      # 帶入變數，強迫 Linker 直接面向全域路徑連結
+make run USE_SYSTEM_LIB=1  # 驗證在沒有本地庫檔案下，主程式依然可載入全域動態庫
+```
